@@ -83,7 +83,7 @@ namespace BruteForce
             if (o.Verbose)
                 Console.WriteLine("Total usernames to check: {0}", usernames.Count);
 
-            runaway(o.UserField, o.PasswordField, o.URL, o.RedirectURL, o.CheckString, o.IsSuccess, o.HeaderFile, o.CookiesFile, o.AdditionalDataFile, o.OutputFile, o.Threads, (s) => { if (o.Verbose) Console.Write(s); }).Wait();
+            runaway(o.UserField, o.PasswordField, o.URL, o.RedirectURL, o.CheckString, o.IsSuccess, o.HeaderFile, o.CookiesFile, o.AdditionalDataFile, o.OutputFile, o.Threads, o.Timeout, (s) => { if (o.Verbose) Console.Write(s); }).Wait();
 
             if (o.Verbose)
                 Console.WriteLine("\nCompleted\nSee {0} for results", o.OutputFile);
@@ -93,7 +93,7 @@ namespace BruteForce
                                     string url, string redirect_url,
                                     string checkString, bool isSuccessString,
                                     string headerFile, string cookiesFile, string dataFieldFile, string outputFile,
-                                    int threads, Action<string> status = null)
+                                    int threads, int timeout, Action<string> status = null)
         {
             var uri = new Uri(url);
 
@@ -110,6 +110,8 @@ namespace BruteForce
             DirectoryInfo curDir = new DirectoryInfo(Directory.GetCurrentDirectory());
 
             initializeFoundUsernames(outputFile);
+
+            var timeout_span = new TimeSpan(0, 0, 0, timeout);
 
             status?.Invoke(string.Format("Usernames already found in output file: {0}\n", foundUsernames.Count));
 
@@ -132,7 +134,7 @@ namespace BruteForce
                             {
                                 var sessionCookies = new CookieContainer();
                                 using (var handler = new HttpClientHandler() { CookieContainer = sessionCookies, AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate })
-                                using (var client = new HttpClient(handler))
+                                using (var client = new HttpClient(handler) { Timeout = timeout_span })
                                 {
                                     #region Add Headers and Cookies
 
@@ -241,7 +243,7 @@ namespace BruteForce
                                             #endregion
 
                                             using (var redirectHandler = new HttpClientHandler() { CookieContainer = sessionCookies, AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate })
-                                            using (var redirectClient = new HttpClient(redirectHandler))
+                                            using (var redirectClient = new HttpClient(redirectHandler) { Timeout = timeout_span })
                                             {
                                                 addRequestHeaders(redirectClient, headerFile);
 
@@ -485,6 +487,9 @@ namespace BruteForce
 
         [Option('t', "threads", HelpText = "The maximum number of threads to be executed", Required = true)]
         public int Threads { get; set; }
+
+        [Option('e', "time", HelpText = "Timeout in seconds for each request", Required = false, DefaultValue = 5)]
+        public int Timeout { get; set; }
 
         [Option('v', "verbose", HelpText = "Enable verbose mode", Required = false, DefaultValue = false)]
         public bool Verbose { get; set; }

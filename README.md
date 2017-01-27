@@ -37,6 +37,8 @@
 
   -t, --threads      Required. The maximum number of threads to be executed
 
+  -e, --time         (Default: 5) Timeout in seconds for each request
+
   -v, --verbose      (Default: False) Enable verbose mode
   ```
 
