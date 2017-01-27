@@ -48,11 +48,11 @@ Accept-Encoding:gzip,deflate
 User-Agent:Mozilla/5.0 ...
 ```
 
-* Output in Format (Username<TAB>Password):
+* Output in Format (Username{TAB}Password):
  
 ```
-someone	ihaveacoolpass__
-yomamma	rockyou
+someone\tihaveacoolpass__
+yomamma\trockyou
 ```
 
 * Uses [CommandLineParser](http://commandline.codeplex.com/) by gsscoder
