@@ -33,6 +33,12 @@ namespace BruteForce
                 {
                     showHelp = true;
                 });
+
+                if (string.IsNullOrWhiteSpace(o.UserFileName) && string.IsNullOrWhiteSpace(o.User))
+                {
+                    Console.WriteLine("Either --user or --usernames must be provided\nSee --help for more info");
+                    return;
+                }
             }
             else
             {
@@ -46,14 +52,21 @@ namespace BruteForce
             }
 
             // Read usernames file
-            using (StreamReader reader = new StreamReader(o.UserFileName))
+            if (string.IsNullOrWhiteSpace(o.User))
             {
-                var line = reader.ReadLine();
-                while (line != null)
+                using (StreamReader reader = new StreamReader(o.UserFileName))
                 {
-                    usernames.Add(line);
-                    line = reader.ReadLine();
+                    var line = reader.ReadLine();
+                    while (line != null)
+                    {
+                        usernames.Add(line);
+                        line = reader.ReadLine();
+                    }
                 }
+            }
+            else
+            {
+                usernames.Add(o.User);
             }
 
             // Read passwords file
@@ -145,6 +158,8 @@ namespace BruteForce
                                         status.Invoke("Trying passwords from: " + passwords[lineIndex]);
                                     }
 
+                                    // Provide a cancellation token, so when the password is found
+                                    // The requested calls should be cancelled
                                     var response = await client.PostAsync(url, content, cToken.Token);
                                     var responseString = await response.Content.ReadAsStringAsync();
 
@@ -179,20 +194,29 @@ namespace BruteForce
                                         // Key found and write to the output
                                         if (status != null)
                                             ClearLine();
+
                                         Console.WriteLine("{0}\t{1}", username, passwords[lineIndex]);
                                         dataWriter.WriteLine(username + "\t" + passwords[lineIndex]);
                                         foundUsernames.Add(username);
 
+                                        // Immediately write whatever remains in the buffer
+                                        // In case of terminating the program, previous work shall not go in vain!
+                                        await dataWriter.FlushAsync();
+
+                                        // Cancel all other tasks that are trying passwords for this username
                                         cToken.Cancel();
 
                                         if (toStore)
                                         {
+                                            // Redirect url page will be visited and downloaded if provided
+                                            // Downloaded page goes in the folder named store
                                             var r_uri = new Uri(redirect_url);
 
                                             IEnumerable<string> cookies;
                                             response.Headers.TryGetValues("Set-Cookie", out cookies);
-                                            // var cookieContainer = new CookieContainer();
+                                            
                                             #region Add Redirect Cookies
+
                                             if (cookies != null && cookies.Count() > 0)
                                             {
 
@@ -213,6 +237,7 @@ namespace BruteForce
 
                                                 }
                                             }
+
                                             #endregion
 
                                             using (var redirectHandler = new HttpClientHandler() { CookieContainer = sessionCookies, AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate })
@@ -220,6 +245,7 @@ namespace BruteForce
                                             {
                                                 addRequestHeaders(redirectClient, headerFile);
 
+                                                // Use GET method to visit the redirect url
                                                 var redirectResponse = await redirectClient.GetAsync(redirect_url);
 
                                                 #region Write the response to file
@@ -244,7 +270,8 @@ namespace BruteForce
 
                         }, threads, cToken.Token);
 
-                        if (!passwordFound)
+                        // Remove the Trying passwords from: ... line
+                        if (!passwordFound && status != null)
                         {
                             ClearLine();
                         }
@@ -376,6 +403,8 @@ namespace BruteForce
             }
         }
 
+        // This method is similar to Parallel.For
+        // Allows maximum number of threads (threadsToUse)
         static async Task DoParallelTasks(int count, Func<int, Task> method, int threadsToUse, CancellationToken cancellation_token)
         {
             var activeTasks = new HashSet<Task>();
@@ -389,6 +418,9 @@ namespace BruteForce
 
                 activeTasks.Add(method(i));
                 threadsInUseCurrently++;
+
+                // If the threads in use exceeds the maximum number of threads to use
+                // Wait for some thread to complete and then continue the loop to add more
                 if (activeTasks.Count >= threadsToUse)
                 {
                     var completed = await Task.WhenAny(activeTasks);
@@ -412,8 +444,11 @@ namespace BruteForce
 
     class CommandOptions
     {
-        [Option('U', "usernames", HelpText = "Path of the file that contains usernames", Required = true)]
+        [Option('U', "usernames", HelpText = "Path of the file that contains usernames", Required = false)]
         public string UserFileName { get; set; }
+
+        [Option("user", HelpText = "Find the password of a single user. Either this or --usernames must be provided", Required = false)]
+        public string User { get; set; }
 
         [Option('P', "passwords", HelpText = "Path of the file that contains passwords", Required = true)]
         public string PasswordFileName { get; set; }
