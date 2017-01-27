@@ -1,5 +1,8 @@
-Command Line Options
+# Brute Force on Windows in C#
 
+### Command Line Options
+
+  ```
   -U, --usernames    Required. Path of the file that contains usernames
 
   -P, --passwords    Required. Path of the file that contains passwords
@@ -32,20 +35,26 @@ Command Line Options
   -t, --threads      Required. The maximum number of threads to be executed
 
   -v, --verbose      (Default: False) Enable verbose mode
+  ```
 
+---
 
-------------------------------------
+* Username and Password files contain values line separated
 
-Username and Password files contain values line separated
+* Header/Cookie/Form-Data file example (Name:Value):
 
-Header/Cookie/Form-Data file example (Name:Value):
-
+```
 Accept-Encoding:gzip,deflate
 User-Agent:Mozilla/5.0 ...
+```
 
-Output in Format (Username<TAB>Password):
+* Output in Format (Username<TAB>Password):
  
+```
 someone	ihaveacoolpass__
 yomamma	rockyou
+```
 
-Uses CommandLineParser by gsscoder
+* Uses [CommandLineParser](http://commandline.codeplex.com/) by gsscoder
+
+[@hallunaaqi](http://www.instagram.com/hallunaaqi) on Instagram | [/hallunaaqi](http://www.facebook.com/hallunaaqi) on Facebook
