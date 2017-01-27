@@ -44,11 +44,11 @@
 
 * Username and Password files contain values line separated
 
-* Header/Cookie/Form-Data file example (Name:Value):
+* Header/Cookie/Form-Data file example (Name=Value):
 
 ```
-Accept-Encoding:gzip,deflate
-User-Agent:Mozilla/5.0 ...
+Accept-Encoding=gzip,deflate
+User-Agent=Mozilla/5.0 ...
 ```
 
 * Output in Format (Username{TAB}Password):

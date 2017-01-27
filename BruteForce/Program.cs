@@ -327,7 +327,7 @@ namespace BruteForce
                         var line = reader.ReadLine();
                         while (line != null)
                         {
-                            var lineSplit = line.IndexOf(':');
+                            var lineSplit = line.IndexOf('=');
                             var fieldName = line.Substring(0, lineSplit);
                             var fieldValue = line.Substring(lineSplit + 1);
                             values.Add(fieldName, fieldValue);
@@ -354,7 +354,7 @@ namespace BruteForce
                         var line = reader.ReadLine();
                         while (line != null)
                         {
-                            var lineSplit = line.IndexOf(':');
+                            var lineSplit = line.IndexOf('=');
                             var cookieName = line.Substring(0, lineSplit);
                             var cookieValue = line.Substring(lineSplit + 1);
                             container.Add(new Cookie(cookieName, cookieValue, "/", hostname));
@@ -381,7 +381,7 @@ namespace BruteForce
                         var line = reader.ReadLine();
                         while (line != null)
                         {
-                            var lineSplit = line.IndexOf(':');
+                            var lineSplit = line.IndexOf('=');
                             var headerName = line.Substring(0, lineSplit);
                             var headerValue = line.Substring(lineSplit + 1);
                             client.DefaultRequestHeaders.Add(headerName, headerValue);
