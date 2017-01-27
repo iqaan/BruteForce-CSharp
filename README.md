@@ -1,9 +1,12 @@
-# Brute Force on Windows in C#
+# Brute Force on Windows in C-Sharp
 
 ### Command Line Options
 
   ```
-  -U, --usernames    Required. Path of the file that contains usernames
+  -U, --usernames    Path of the file that contains usernames
+
+  --user             Find the password of a single user. Either this or
+                     --usernames must be provided
 
   -P, --passwords    Required. Path of the file that contains passwords
 
