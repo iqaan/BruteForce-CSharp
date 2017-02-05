@@ -39,6 +39,12 @@ namespace BruteForce
                     Console.WriteLine("Either --user or --usernames must be provided\nSee --help for more info");
                     return;
                 }
+
+                if (string.IsNullOrWhiteSpace(o.PasswordFileName) && string.IsNullOrWhiteSpace(o.Password))
+                {
+                    Console.WriteLine("Either --pass or --passwords must be provided\nSee --help for more info");
+                    return;
+                }
             }
             else
             {
@@ -70,14 +76,21 @@ namespace BruteForce
             }
 
             // Read passwords file
-            using (StreamReader reader = new StreamReader(o.PasswordFileName))
+            if (string.IsNullOrWhiteSpace(o.Password))
             {
-                var line = reader.ReadLine();
-                while (line != null)
+                using (StreamReader reader = new StreamReader(o.PasswordFileName))
                 {
-                    passwords.Add(line);
-                    line = reader.ReadLine();
+                    var line = reader.ReadLine();
+                    while (line != null)
+                    {
+                        passwords.Add(line);
+                        line = reader.ReadLine();
+                    }
                 }
+            }
+            else
+            {
+                passwords.Add(o.Password);
             }
 
             if (o.Verbose)
@@ -281,7 +294,7 @@ namespace BruteForce
                     } // if (!foundUsernames ...
                     else
                     {
-                        status?.Invoke(string.Format("{0} already exists!", username));
+                        status?.Invoke(string.Format("{0} already exists!\n", username));
                     }
 
                 }
@@ -452,13 +465,16 @@ namespace BruteForce
         [Option("user", HelpText = "Find the password of a single user. Either this or --usernames must be provided", Required = false)]
         public string User { get; set; }
 
-        [Option('P', "passwords", HelpText = "Path of the file that contains passwords", Required = true)]
+        [Option('P', "passwords", HelpText = "Path of the file that contains passwords", Required = false)]
         public string PasswordFileName { get; set; }
 
-        [Option('l', "login", HelpText = "The name of the username field in the form", Required = true)]
+        [Option("pass", HelpText = "In case only single password is to be tried. Either this or --passwords must be provided", Required = false)]
+        public string Password { get; set; }
+
+        [Option('l', "loginuser", HelpText = "The name of the username field in the form", Required = true)]
         public string UserField { get; set; }
 
-        [Option('f', "pass", HelpText = "The name of the password field in the form", Required = true)]
+        [Option('f', "loginpass", HelpText = "The name of the password field in the form", Required = true)]
         public string PasswordField { get; set; }
 
         [Option('w', "url", HelpText = "The URL where the form request is to be sent", Required = true)]

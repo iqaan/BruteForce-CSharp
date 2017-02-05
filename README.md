@@ -8,11 +8,14 @@
   --user             Find the password of a single user. Either this or
                      --usernames must be provided
 
-  -P, --passwords    Required. Path of the file that contains passwords
+  -P, --passwords    Path of the file that contains passwords
 
-  -l, --login        Required. The name of the username field in the form
+  --pass             In case only single password is to be tried. Either this
+                     or --passwords must be provided
 
-  -f, --pass         Required. The name of the password field in the form
+  -l, --loginuser    Required. The name of the username field in the form
+
+  -f, --loginpass    Required. The name of the password field in the form
 
   -w, --url          Required. The URL where the form request is to be sent
 
